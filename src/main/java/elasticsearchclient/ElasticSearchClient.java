@@ -16,6 +16,8 @@ import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.sort.SortOrder;
@@ -63,6 +65,32 @@ public class ElasticSearchClient {
         }
     }
     
+    public void queryDataBySensorId(String sensorId) throws Exception {
+        //QueryBuilder qb = QueryBuilders.matchQuery("sensorId", sensorId);
+        SearchResponse response = client.prepareSearch("stem")
+                .setTypes("sensordata")
+                .addSort("sensorDataTimestamp", SortOrder.ASC)
+                .setQuery(QueryBuilders.matchQuery("sensorId", sensorId))
+                .setFrom(0)
+                .setSize(10000)
+                //.setFrom(0).setSize(50).setExplain(true)
+                .execute()
+                .actionGet();
+        SearchHits hits = response.getHits();
+        int i = 1;
+        if (hits.getTotalHits() > 0) {
+            for (SearchHit h : hits) {
+                //h.getInnerHits()
+                System.out.println(h.getSourceAsString());
+                SensorDataDocument doc = MAPPER.readValue(h.getSourceAsString(), SensorDataDocument.class);
+                DateTime dt = new DateTime(doc.getSensorDataTimestamp(), DateTimeZone.forTimeZone(TimeZone.getTimeZone("PST")));
+                System.out.println(dt.toString());
+                System.out.println(i);
+                i++;
+            }
+        }
+    }
+    
     public void queryDataByDateRange(long start, long end) throws Exception {
         FilterBuilder filter = FilterBuilders.andFilter(
                 FilterBuilders.rangeFilter("sensorDataTimestamp").from(start).to(end));
@@ -70,6 +98,7 @@ public class ElasticSearchClient {
                 .setTypes("sensordata")
                 .addSort("sensorDataTimestamp", SortOrder.ASC)
                 .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+                .setQuery(QueryBuilders.rangeQuery("sensorDataTimestamp").from(start).to(end))
                 .setFrom(0)
                 .setSize(10000)
                 //.setPostFilter(filter)

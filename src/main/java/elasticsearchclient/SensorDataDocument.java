@@ -10,9 +10,9 @@ public class SensorDataDocument {
 
     private String deviceId;
 
-    private int userId;
-
     private int sensorDataType;
+    
+    private String userId;
 
     // For data type, this should be a double, for image and video, this should be the file path
     private String sensorDataValue;
@@ -43,14 +43,6 @@ public class SensorDataDocument {
         this.deviceId = deviceId;
     }
 
-    public int getUserId() {
-        return userId;
-    }
-
-    public void setUserId(int userId) {
-        this.userId = userId;
-    }
-
     public int getSensorDataType() {
         return sensorDataType;
     }
@@ -74,20 +66,19 @@ public class SensorDataDocument {
     public void setSensorDataValue(String sensorDataValue) {
         this.sensorDataValue = sensorDataValue;
     }
-
+    
     @Override
     public String toString() {
         return Objects.toStringHelper(this).add("id", id)
                 .add("sensorId", sensorId).add("deviceId", deviceId)
-                .add("userId", userId).add("sensorDataType", sensorDataType)
+                .add("sensorDataType", sensorDataType)
                 .add("sensorDataValue", sensorDataValue)
                 .add("sensorDataTimestamp", sensorDataTimestamp).toString();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id, sensorId, deviceId, userId, sensorDataType,
-                sensorDataValue, sensorDataTimestamp);
+        return Objects.hashCode(id, sensorId, deviceId, sensorDataType, sensorDataValue, sensorDataTimestamp);
     }
 
     @Override
@@ -97,7 +88,6 @@ public class SensorDataDocument {
             return Objects.equal(this.id, that.id)
                     && Objects.equal(this.sensorId, that.sensorId)
                     && Objects.equal(this.deviceId, that.deviceId)
-                    && Objects.equal(this.userId, that.userId)
                     && Objects.equal(this.sensorDataType, that.sensorDataType)
                     && Objects
                             .equal(this.sensorDataValue, that.sensorDataValue)
